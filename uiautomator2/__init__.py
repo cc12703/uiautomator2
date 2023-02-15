@@ -1238,6 +1238,12 @@ class _Device(_BaseClient):
         v = v.upper()
         self.shell("input keyevent " + v)
 
+
+    def user_list_id(self) -> List[str] :
+        output, _ = self.shell(['pm', 'list', 'users'])
+        ids = re.findall(r'\tUserInfo{([^:]+):[^:]+:[^:]+} running', output)
+        return ids
+
     @cached_property
     def serial(self) -> str:
         """
@@ -1408,7 +1414,7 @@ class _AppMixIn:
             time.sleep(.5)
         return False
 
-    def app_start(self, package_name: str, activity: Optional[str] = None, wait: bool = False, stop: bool = False, use_monkey: bool = False):
+    def app_start(self, package_name: str, activity: Optional[str] = None, wait: bool = False, stop: bool = False, use_monkey: bool = False, user_id: str = '0'):
         """ Launch application
         Args:
             package_name (str): package name
@@ -1416,6 +1422,7 @@ class _AppMixIn:
             stop (bool): Stop app before starting the activity. (require activity)
             use_monkey (bool): use monkey command to start app when activity is not given
             wait (bool): wait until app started. default False
+            user_id (int): user id
         """
         if stop:
             self.app_stop(package_name)
@@ -1446,7 +1453,8 @@ class _AppMixIn:
         args = [
             'am', 'start', '-a', 'android.intent.action.MAIN', '-c',
             'android.intent.category.LAUNCHER',
-            '-n', f'{package_name}/{activity}'
+            '-n', f'{package_name}/{activity}',
+            '--user', user_id,
         ]
         self.shell(args)
 
