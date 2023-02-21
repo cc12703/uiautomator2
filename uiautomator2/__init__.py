@@ -34,7 +34,7 @@ import xml.dom.minidom
 from collections import defaultdict, namedtuple
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 # import progress.bar
 import adbutils
@@ -72,6 +72,14 @@ if six.PY2:
 
 DEBUG = False
 WAIT_FOR_DEVICE_TIMEOUT = int(os.getenv("WAIT_FOR_DEVICE_TIMEOUT", 20))
+
+
+CFG_RESET_ADB_WIFI_ADDR = 'reset_adb_wifi_addr'
+CFG_RESET_ATX_LISTEN_ADDR = 'reset_atx_listen_addr'
+
+_cfg: Dict[str,str] = {}
+
+
 
 
 log_format = '%(color)s[%(levelname)1.1s %(asctime)s %(module)s:%(lineno)d]%(end_color)s [pid:%(process)d] %(message)s'
@@ -263,6 +271,7 @@ class _BaseClient(object):
         self._filelock = filelock.FileLock(filelock_path, timeout=200)
 
         self._app_installer: AppInstaller = None
+        self._devWifiOfReset: adbutils.AdbDevice  = None
 
     @property
     def logger(self) -> logging.Logger:
@@ -302,6 +311,9 @@ class _BaseClient(object):
 
     @property
     def _adb_device(self):
+        if self._devWifiOfReset :
+            return self._devWifiOfReset
+
         """ only avaliable when connected with usb """
         assert self._serial, "serial should not empty"
         return adbutils.adb.device(serial=self._serial)
@@ -331,6 +343,8 @@ class _BaseClient(object):
 
         from uiautomator2 import init
         _initer = init.Initer(self._adb_device)
+        if CFG_RESET_ATX_LISTEN_ADDR in _cfg :
+            _initer.set_atx_agent_addr(_cfg[CFG_RESET_ATX_LISTEN_ADDR])
         _initer.setup_atx_agent()
 
     def _wait_for_device(self, timeout=None) -> adbutils.AdbDevice:
@@ -363,6 +377,11 @@ class _BaseClient(object):
                     self.logger.debug("adb reconnect error: %s", str(e))
                     time.sleep(1.0)
                     continue
+
+            if (CFG_RESET_ADB_WIFI_ADDR in _cfg) and (self._devWifiOfReset==None) :
+                self._devWifiOfReset = self._connect_by_adbwifi(_cfg[CFG_RESET_ADB_WIFI_ADDR])                
+                return self._devWifiOfReset
+
             try:
                 adb.wait_for(self._serial, timeout=1)
             except adbutils.AdbTimeout:
@@ -370,6 +389,26 @@ class _BaseClient(object):
             
             return adb.device(self._serial)
         return None
+
+
+
+    def _reset_uiautomator_finish(self) :
+        if (CFG_RESET_ADB_WIFI_ADDR in _cfg) and self._devWifiOfReset :
+            self._disconnect_by_adbwifi(_cfg[CFG_RESET_ADB_WIFI_ADDR])
+            self._devWifiOfReset = None
+
+    def _connect_by_adbwifi(self, addr: str) -> adbutils.AdbDevice :
+        self.logger.info(f"connect by adbwifi:  ${addr}") 
+        subprocess.call([adbutils.adb_path(), "connect", addr])
+        try:
+            subprocess.call([adbutils.adb_path(), "-s", addr, "wait-for-device"], timeout=2)
+            return adbutils.adb.device() 
+        except subprocess.TimeoutExpired:
+            return None
+
+    def _disconnect_by_adbwifi(self, addr: str) :
+        self.logger.info(f"disconnect by adbwifi:  ${addr}") 
+        subprocess.call([adbutils.adb_path(), "disconnect", addr])
 
     def _adb_shell(self, cmdargs: Union[list, Tuple[str]], timeout=None):
         """ run command through adb command """
@@ -640,6 +679,7 @@ class _BaseClient(object):
                 launch_test_app=depth > 0)  # uiautomator 2.0
             if ok:
                 self.logger.info("uiautomator back to normal")
+                self._reset_uiautomator_finish()
                 return
 
             output = self._test_run_instrument()
@@ -1996,3 +2036,9 @@ def connect_wifi(addr: str) -> Device:
         raise ConnectError("addr is invalid or atx-agent is not running", addr)
     del addr
     return Device(_addr)
+
+
+
+def cfg(key: str, val: str) :
+    _cfg[key] = val
+
