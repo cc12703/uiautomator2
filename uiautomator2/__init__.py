@@ -74,12 +74,6 @@ DEBUG = False
 WAIT_FOR_DEVICE_TIMEOUT = int(os.getenv("WAIT_FOR_DEVICE_TIMEOUT", 20))
 
 
-CFG_RESET_ADB_WIFI_ADDR = 'reset_adb_wifi_addr'
-CFG_RESET_ATX_LISTEN_ADDR = 'reset_atx_listen_addr'
-
-_cfg: Dict[str,str] = {}
-
-
 
 
 log_format = '%(color)s[%(levelname)1.1s %(asctime)s %(module)s:%(lineno)d]%(end_color)s [pid:%(process)d] %(message)s'
@@ -343,8 +337,8 @@ class _BaseClient(object):
 
         from uiautomator2 import init
         _initer = init.Initer(self._adb_device)
-        if CFG_RESET_ATX_LISTEN_ADDR in _cfg :
-            _initer.set_atx_agent_addr(_cfg[CFG_RESET_ATX_LISTEN_ADDR])
+        if self.settings['reset_atx_listen_addr'] is not None :
+            _initer.set_atx_agent_addr(self.settings['reset_atx_listen_addr'])
         _initer.setup_atx_agent()
 
     def _wait_for_device(self, timeout=None) -> adbutils.AdbDevice:
@@ -378,8 +372,9 @@ class _BaseClient(object):
                     time.sleep(1.0)
                     continue
 
-            if (CFG_RESET_ADB_WIFI_ADDR in _cfg) and (self._devWifiOfReset==None) :
-                self._devWifiOfReset = self._connect_by_adbwifi(_cfg[CFG_RESET_ADB_WIFI_ADDR])                
+            adbWifiAddr = self.settings['reset_adb_wifi_addr']
+            if (adbWifiAddr is not None) and (self._devWifiOfReset==None) :
+                self._devWifiOfReset = self._connect_by_adbwifi(adbWifiAddr)                
                 return self._devWifiOfReset
 
             try:
@@ -393,16 +388,17 @@ class _BaseClient(object):
 
 
     def _reset_uiautomator_finish(self) :
-        if (CFG_RESET_ADB_WIFI_ADDR in _cfg) and self._devWifiOfReset :
-            self._disconnect_by_adbwifi(_cfg[CFG_RESET_ADB_WIFI_ADDR])
+        adbWifiAddr = self.settings['reset_adb_wifi_addr']
+        if (adbWifiAddr is not None) and self._devWifiOfReset :
+            self._disconnect_by_adbwifi(adbWifiAddr)
             self._devWifiOfReset = None
 
     def _connect_by_adbwifi(self, addr: str) -> adbutils.AdbDevice :
-        self.logger.info(f"connect by adbwifi:  ${addr}") 
+        self.logger.info(f"connect by adbwifi:  {addr}") 
         subprocess.call([adbutils.adb_path(), "connect", addr])
         try:
             subprocess.call([adbutils.adb_path(), "-s", addr, "wait-for-device"], timeout=2)
-            return adbutils.adb.device() 
+            return adbutils.adb.device(serial=addr) 
         except subprocess.TimeoutExpired:
             return None
 

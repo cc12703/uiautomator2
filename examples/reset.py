@@ -8,21 +8,20 @@ sys.path.insert(0, os.getcwd())
 import uiautomator2 as u2
 
 
-
+# get pid of atx-agent: adb shell ps -A | grep agent 
+# kill atx-agent: adb shell kill <pid> 
 
 
 def reset() :
-    u2.cfg(u2.CFG_RESET_ADB_WIFI_ADDR, '192.168.1.242:33799')
-    u2.cfg(u2.CFG_RESET_ATX_LISTEN_ADDR, ':7912')
-
-
     d = u2.connect_wifi('192.168.1.242')
+    d.settings['reset_adb_wifi_addr'] = '192.168.1.242:34439'
+    d.settings['reset_atx_listen_addr'] = ':7912'
     print(d.device_info)
 
     
 
     print('sleep now')
-    time.sleep(10)
+    input('wait ....')
 
     print('reset now')
     d.reset_uiautomator()

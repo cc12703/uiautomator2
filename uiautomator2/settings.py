@@ -20,6 +20,8 @@ class Settings(object):
             "operation_delay": (0, 0),
             "operation_delay_methods": ["click", "swipe"],
             "fallback_to_blank_screenshot": False,
+            "reset_adb_wifi_addr": None,
+            "reset_atx_listen_addr": None
         }
 
         self._deprecated_props = {
@@ -34,6 +36,8 @@ class Settings(object):
             "post_delay": (float, int),
             "xpath_debug": bool,
             "fallback_to_blank_screenshot": bool,
+            "reset_adb_wifi_addr": str,
+            "reset_atx_listen_addr": str
         }
         for k, v in self._defaults.items():
             if k not in self._prop_types:
