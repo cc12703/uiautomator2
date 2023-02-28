@@ -1993,6 +1993,11 @@ def connect_adb_wifi(addr) -> Device:
     return connect_usb(addr)
 
 
+
+def disconnect_adb_wifi(addr) :
+    subprocess.call([adbutils.adb_path(), "disconnect", addr])
+
+
 def connect_usb(serial: Optional[str] = None, init: bool = False) -> Device:
     """
     Args:
@@ -2035,6 +2040,5 @@ def connect_wifi(addr: str) -> Device:
 
 
 
-def cfg(key: str, val: str) :
-    _cfg[key] = val
+
 
