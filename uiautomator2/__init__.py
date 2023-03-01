@@ -1998,6 +1998,7 @@ def disconnect_adb_wifi(addr) :
     subprocess.call([adbutils.adb_path(), "disconnect", addr])
 
 
+
 def connect_usb(serial: Optional[str] = None, init: bool = False) -> Device:
     """
     Args:
@@ -2039,6 +2040,13 @@ def connect_wifi(addr: str) -> Device:
     return Device(_addr)
 
 
+#return: guid
+def pair_by_wifi(addr: str, code: int) -> str :
+    output = subprocess.check_output([adbutils.adb_path(), "pair", addr, str(code)], text=True)
+    guid = re.findall(r'Successfully .* \[guid=(.+)\]$', output)
+    return guid[0]
 
+def listDeviceSerial() -> List[str] :
+   return list(map(lambda x: x.serial, adbutils.adb.list()))
 
 
