@@ -2040,8 +2040,15 @@ def connect_wifi(addr: str) -> Device:
     return Device(_addr)
 
 
-#return: guid
-def pair_by_wifi(addr: str, code: str) -> str|None :
+def pair_by_wifi(addr: str, code: str) -> Optional[str] :
+    """
+    Args:
+        addr (str) pair client address
+        code (str) pair code
+
+    Returns:
+        guid or None
+    """
     output = subprocess.check_output([adbutils.adb_path(), "pair", addr, code], text=True)
     if output.startswith('Failed') :
         logger.error(f"pair by wifi fail: {output}")
