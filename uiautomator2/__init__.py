@@ -2041,8 +2041,12 @@ def connect_wifi(addr: str) -> Device:
 
 
 #return: guid
-def pair_by_wifi(addr: str, code: int) -> str :
-    output = subprocess.check_output([adbutils.adb_path(), "pair", addr, str(code)], text=True)
+def pair_by_wifi(addr: str, code: str) -> str|None :
+    output = subprocess.check_output([adbutils.adb_path(), "pair", addr, code], text=True)
+    if output.startswith('Failed') :
+        logger.error(f"pair by wifi fail: {output}")
+        return None
+    
     guid = re.findall(r'Successfully .* \[guid=(.+)\]$', output)
     return guid[0]
 
