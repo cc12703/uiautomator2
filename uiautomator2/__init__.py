@@ -223,6 +223,7 @@ class _AgentRequestSession(TimeoutRequestsSession):
 
         # fix atx-agent and request again
         self.__client._prepare_atx_agent()
+        self.__client._prepare_atx_agent_finish()
         url = self.__client.path2url(url)
         return super().request(method, url, **kwargs)
 
@@ -387,7 +388,7 @@ class _BaseClient(object):
 
 
 
-    def _reset_uiautomator_finish(self) :
+    def _prepare_atx_agent_finish(self) :
         adbWifiAddr = self.settings['reset_adb_wifi_addr']
         if (adbWifiAddr is not None) and self._devWifiOfReset :
             self._disconnect_by_adbwifi(adbWifiAddr)
@@ -675,7 +676,7 @@ class _BaseClient(object):
                 launch_test_app=depth > 0)  # uiautomator 2.0
             if ok:
                 self.logger.info("uiautomator back to normal")
-                self._reset_uiautomator_finish()
+                self._prepare_atx_agent_finish()
                 return
 
             output = self._test_run_instrument()
