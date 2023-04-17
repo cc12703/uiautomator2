@@ -54,7 +54,7 @@ from urllib3.util.retry import Retry
 from . import xpath
 from ._proto import HTTP_TIMEOUT, SCROLL_STEPS, Direction
 from ._selector import Selector, UiObject
-from .exceptions import (BaseError, ConnectError, GatewayError, JSONRPCError,
+from .exceptions import (BaseError, ConnectError, GatewayError, InstallError, JSONRPCError,
                          NullObjectExceptionError, NullPointerExceptionError,
                          RetryError, ServerError, SessionBrokenError,
                          StaleObjectExceptionError,
@@ -2060,5 +2060,22 @@ def pair_by_wifi(addr: str, code: str) -> Optional[str] :
 
 def listDeviceSerial() -> List[str] :
    return list(map(lambda x: x.serial, adbutils.adb.list()))
+
+
+
+def installByADBWifi(addr: str, agentAddr: Optional[str]) :
+    try :
+        subprocess.call([adbutils.adb_path(), "connect", addr])
+        subprocess.call([adbutils.adb_path(), "-s", addr, "wait-for-device"], timeout=2)
+
+        initer = Initer(adbutils.adb.device(addr))
+        if agentAddr is not None:
+            initer.set_atx_agent_addr(agentAddr)
+        initer.install() 
+
+    except Exception as e :
+        raise InstallError(e)
+    finally :     
+        subprocess.call([adbutils.adb_path(), "disconnect", addr])
 
 

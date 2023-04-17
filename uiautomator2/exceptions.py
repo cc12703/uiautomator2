@@ -15,6 +15,9 @@ class ConnectError(BaseError):
     """ adb connect 异常 """
 
 
+class InstallError(BaseError) :
+    """ app 安装错误 """
+
 class RetryError(BaseError):
     """ retry when meet this error """
 
