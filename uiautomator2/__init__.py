@@ -478,6 +478,14 @@ class _BaseClient(object):
     @cached_property
     def http(self):
         return _AgentRequestSession(self)
+    
+    @property
+    def isRunning(self) -> bool :
+        res = self.http.get("/uiautomator")
+        jsondata = res.json()
+        logger.info(jsondata)
+        return jsondata['running'] == True
+
 
     @property
     def info(self):
