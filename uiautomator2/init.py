@@ -14,7 +14,7 @@ import requests
 from logzero import logger, setup_logger
 from retry import retry
 
-from uiautomator2.version import (__apk_version__, __atx_agent_version__,
+from uiautomator2.version import (__apk_version__, __atx_agent_version__, __input_apk_version__,
                                   __jar_version__, __version__)
 from uiautomator2.utils import natualsize
 
@@ -220,6 +220,15 @@ class Initer():
             "/raw/0.3.0/node_modules/@devicefarmer/minitouch-prebuilt/prebuilt/",
             self.abi + "/bin/minitouch"
         ])
+    
+    @property
+    def whatsinput_url(self) :
+        return ''.join([
+            GITHUB_BASEURL + "/atxserver2-android-provider",
+            "/releases/download/v0.2.0/WhatsInput_v1.0.apk"
+        ])
+
+            
 
     @retry(tries=2, logger=logger)
     def push_url(self, url, dest=None, mode=0o755, tgz=False, extract_name=None):  # yapf: disable
@@ -238,6 +247,22 @@ class Initer():
         self.logger.debug("Push to %s:0%o", dest, mode)
         self._device.sync.push(path, dest, mode=mode)
         return dest
+    
+
+    def is_input_outdated(self):
+        apk_input = self._device.package_info("com.buscode.whatsinput")
+        self.logger.debug("apk-input package-info: %s", apk_input)
+        if not apk_input :
+            return True
+        
+        if apk_input['version_name'] != __input_apk_version__ :
+            self.logger.info(
+                "package com.buscode.whatsinput version %s, latest %s",
+                apk_input['version_name'], __input_apk_version__)
+            return True
+        
+        return False
+
 
     def is_apk_outdated(self):
         """
@@ -316,8 +341,18 @@ class Initer():
 
         if self.is_apk_outdated():
             return False
+        
+        if self.is_input_outdated():
+            return False
 
         return True
+    
+
+    def _install_input_apk(self) :
+        self.shell("pm", "uninstall", "com.buscode.whatsinput")
+        path = self.push_url(self.whatsinput_url, mode=0o644)
+        self.shell("pm", "install", "-r", "-t", path)
+        self.logger.info("- whatsinput installed")
 
     def _install_uiautomator_apks(self):
         """ use uiautomator 2.0 to run uiautomator test
@@ -371,7 +406,12 @@ class Initer():
         TODO: push minicap and minitouch from tgz file
         """
         self.logger.info("Install minicap, minitouch")
-        self.push_url(self.minitouch_url)
+        if int(self.sdk) > 28 :
+           self.shell('rm', '-rf', '/data/local/tmp/minitouch') 
+        else :
+            self.push_url(self.minitouch_url)
+
+
         if self.abi == "x86":
             self.logger.info(
                 "abi:x86 not supported well, skip install minicap")
@@ -389,6 +429,14 @@ class Initer():
             self._install_uiautomator_apks()
         else:
             self.logger.info("Already installed com.github.uiautomator apks")
+
+
+        if self.is_input_outdated() :
+            self.logger.info("Install whatsinput %s", __input_apk_version__)
+            self._install_input_apk()
+        else :
+            self.logger.info("Already installed whatsinput")
+        
 
         self.setup_atx_agent()
         print("Successfully init %s" % self._device)

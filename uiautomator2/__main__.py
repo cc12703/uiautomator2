@@ -123,6 +123,17 @@ def cmd_doctor(args):
         apk_debug = init._device.package_info("com.github.uiautomator")
         version = apk_debug['version_name']
         print("\tGOOD: com.github.uiautomator", version)
+
+
+    print("CHECK input")
+    if init.is_input_outdated():
+        print("\tFAIL")
+        logger.warning("input is invalid")
+        ok = False
+    else:
+        apk_input = init._device.package_info("com.buscode.whatsinput")
+        version = apk_input['version_name']
+        print("\tGOOD: com.buscode.whatsinput", version)
     
     if ok:
         print("CHECK jsonrpc")

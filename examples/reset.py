@@ -12,7 +12,11 @@ import uiautomator2 as u2
 # kill atx-agent: adb shell kill <pid> 
 
 
-def reset() :
+def resetByADB() :
+    d = u2.connect()
+    d.reset_uiautomator()
+
+def resetByWifi() :
     d = u2.connect_wifi('192.168.1.242')
     d.settings['reset_adb_wifi_addr'] = '192.168.1.242:34439'
     d.settings['reset_atx_listen_addr'] = ':7912'
@@ -40,5 +44,6 @@ def resetByADBWifi() :
 
 
 if __name__ == '__main__':
-    #reset()
-    resetByADBWifi()
+    #resetByWifi()
+    #resetByADBWifi()
+    resetByADB()

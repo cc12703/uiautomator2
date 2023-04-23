@@ -11,7 +11,6 @@ import uiautomator2 as u2
 
 
 
-
 def install() :
     u2.installByADBWifi('192.168.43.161:43301', ':7912') 
 
@@ -19,7 +18,12 @@ def install() :
     dev.reset_uiautomator()
 
 
+def installByADB() :
+    dev = u2.adbutils.adb.device()
+    init = u2.init.Initer(dev)
+    init.install()
 
 
 if __name__ == '__main__':
-   install() 
+   #install() 
+   installByADB()

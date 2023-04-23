@@ -94,3 +94,6 @@ __atx_agent_version__ = '0.10.0'
 # 0.1.4 phone remote control
 # 0.1.2 /download support
 # 0.1.1 minicap buildin
+
+
+__input_apk_version__='1.0'
