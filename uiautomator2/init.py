@@ -451,6 +451,7 @@ class Initer():
         self.logger.info("minicap, minitouch removed")
         self._device.shell(["pm", "uninstall", "com.github.uiautomator"])
         self._device.shell(["pm", "uninstall", "com.github.uiautomator.test"])
+        self._device.shell(["pm", "uninstall", "com.buscode.whatsinput"])
         self.logger.info("com.github.uiautomator uninstalled, all done !!!")
 
 
