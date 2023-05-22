@@ -1471,7 +1471,7 @@ class _AppMixIn:
             user_id (int): user id
         """
         if stop:
-            self.app_stop(package_name)
+            self.app_stop(package_name, user_id=user_id)
 
         if use_monkey:
             self.shell([
@@ -1557,9 +1557,9 @@ class _AppMixIn:
                                    self.shell('ps; ps -A').output, re.M)
         return list(set(packages).intersection(process_names))
 
-    def app_stop(self, package_name):
+    def app_stop(self, package_name, user_id: str = '0'):
         """ Stop one application: am force-stop"""
-        self.shell(['am', 'force-stop', package_name])
+        self.shell(['am', 'force-stop', '--user', user_id, package_name])
 
     def app_stop_all(self, excludes=[]):
         """ Stop all third party applications
