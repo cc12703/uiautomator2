@@ -1415,7 +1415,8 @@ class _AppMixIn:
             r'ACTIVITY (?P<package>[^\s]+)/(?P<activity>[^/\s]+) \w+ pid=(?P<pid>\d+)'
         )
         output, _ = self.shell(['dumpsys', 'activity', 'top'])
-        ms = _activityRE.finditer(output)
+        ms = list(_activityRE.finditer(output))
+        ms.reverse()  # reverse order, find top activity of double open app
         ret = None
         for m in ms:
             ret = dict(package=m.group('package'),

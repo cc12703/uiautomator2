@@ -19,6 +19,11 @@ def test_stop_app() :
     d.app_stop("com.tencent.wework", user_id='999')
 
 
+def test_app_current() :
+    d = u2.connect()
+    print(d.app_current())
+
 if __name__ == "__main__":
     #test_simple()
-    test_stop_app()
+    #test_stop_app()
+    test_app_current()
