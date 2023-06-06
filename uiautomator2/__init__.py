@@ -49,7 +49,6 @@ from deprecated import deprecated
 from logzero import setup_logger
 from PIL import Image
 from retry import retry
-from urllib3.util.retry import Retry
 
 from . import xpath
 from ._proto import HTTP_TIMEOUT, SCROLL_STEPS, Direction
