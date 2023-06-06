@@ -42,7 +42,8 @@ __apk_version__ = '2.3.3'
 __jar_version__ = 'v0.1.6'  # no useless for now.
 # v0.1.6 first release version
 
-__atx_agent_version__ = '0.10.0'
+__atx_agent_version__ = '1.0.2'
+# 1.0.2 httpserver support gzip
 # 0.10.0 remove tunnel code, use androidx.test.runner
 # 0.9.6 fix security reason for remote control device
 # 0.9.5 log support rotate, prevent log too large
