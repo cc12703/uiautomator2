@@ -1,6 +1,164 @@
 CHANGES
 =======
 
+2.20.1
+------
+
+* trigger by push tag
+* fix  bug of  compatible
+
+2.20.0
+------
+
+* update atx-agent
+
+2.19.5
+------
+
+* fix bug of app\_current
+
+2.19.4
+------
+
+* support  stop app by user id
+* add uninstall whatsinput for purge
+
+2.19.3
+------
+
+
+2.19.2
+------
+
+* add isRunning
+* improve install
+
+2.19.1
+------
+
+* fix  workflow cant  run
+
+2.19.0
+------
+
+* add  install by adb wifi
+
+2.16.23
+-------
+
+* update adbutils rep
+* Addresses issue #823 in owner repo. (#870)
+* fix bug
+
+2.18.2
+------
+
+* fix bug of type annotation
+
+2.18.1
+------
+
+* fix   bug of  pair by wifi
+
+2.18.0
+------
+
+* add pair\_by\_wifi
+
+2.7.3
+-----
+
+* add disconnect\_adb\_wifi
+
+2.7.2
+-----
+
+* add params to settings
+
+2.7.1
+-----
+
+* add reset by adb wifi support
+* Update README.md
+* Update README.md
+* update sponsors information
+
+2.7.0
+-----
+
+* add feature
+
+2.16.22
+-------
+
+* fix gateway init error
+
+2.16.21
+-------
+
+* change reset\_uiautomator raise error from OSError to GatewayError
+* add searching apk from cwd assets directory. (#845)
+
+2.16.20
+-------
+
+* update adbutils to 1.0.9
+* 修复 arm64-v8a 机器无法正常启动 atx agent问题 (#801)
+* fix xpath.info clickable issue
+* Image: fixed d.image.match NameError; fixed d.image.getpixel AttributeError; improved d.image.click - threshold argument added
+
+2.16.19
+-------
+
+* set min requests version, ref #824
+* upgrade adbutils version, to fix #826
+
+2.16.18
+-------
+
+* update adb client host (#821)
+
+2.16.17
+-------
+
+* add missing function, fix #809
+
+2.16.16
+-------
+
+* fix #815
+
+2.16.15
+-------
+
+* update req
+
+2.16.14
+-------
+
+* fix app\_current for vivo
+
+2.16.13
+-------
+
+* skip image test
+* update log
+* fix logger not init error
+* Update README.md
+* fix logger
+
+2.16.12
+-------
+
+* update again
+* fix wrong github workflow path
+
+2.16.11
+-------
+
+* fix last fix
+* fix xpath.info clickable issue
+
 2.16.10
 -------
 
@@ -265,26 +423,10 @@ CHANGES
 * add missing toast
 * add more method
 * rewrite uiautomator2, too complex
-
-2.7.3
------
-
 * add timeout(60s) in init.py to prevent hang on apk install page
-
-2.7.2
------
-
 * update adbutils which buildin adb.exe for windows
 * rewrite part of init code
-
-2.7.1
------
-
 * upgrade adbutils: support download adb.exe when missing on windows
-
-2.7.0
------
-
 * add click\_exists to xpath
 
 2.6.2
