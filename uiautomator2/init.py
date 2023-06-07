@@ -6,6 +6,7 @@ import hashlib
 import logging
 import os
 import shutil
+import subprocess
 import tarfile
 
 import adbutils
@@ -139,6 +140,40 @@ def parse_apk(path: str):
         "package": package_name,
         "main_activity": main_activity,
     }
+
+
+
+class IniterOfADBWifi():
+
+    def __init__(self, addr: str, loglevel=logging.DEBUG) -> None:
+        self._addr = addr
+        self._loglevel = loglevel
+        self._device = None
+        self._initer = None
+
+    def connect(self):
+        subprocess.call([adbutils.adb_path(), "connect", self._addr])
+        subprocess.call([adbutils.adb_path(), "-s", self._addr, "wait-for-device"], timeout=2)
+
+        self._device = adbutils.adb.device(self._addr)
+        self._initer = Initer(self._device)
+
+    def disconnect(self):
+        subprocess.call([adbutils.adb_path(), "disconnect", self._addr])
+
+    def setAgentAddr(self, addr: str):
+        self._initer.set_atx_agent_addr(addr)
+
+    def installAll(self):
+        self._initer.install()
+
+    def installAgent(self):
+        self._initer.setup_atx_agent()
+
+    def installApk(self, fileName: str):
+        self._device.install(fileName)
+    
+
 
 class Initer():
     def __init__(self, device: adbutils.AdbDevice, loglevel=logging.DEBUG):
