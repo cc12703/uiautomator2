@@ -168,10 +168,10 @@ class IniterOfADBWifi():
         self._initer.install()
 
     def installAgent(self):
-        self._initer.setup_atx_agent()
+        self._initer.setup_atx_agent(noUIA=False)
 
     def installApk(self, fileName: str):
-        self._device.install(fileName)
+        self._device.install(fileName, nolaunch=True)
     
 
 
@@ -410,14 +410,18 @@ class Initer():
         self.logger.info("Install atx-agent %s", __atx_agent_version__)
         self.push_url(self.atx_agent_url, tgz=True, extract_name="atx-agent")
 
-    def setup_atx_agent(self):
+    def setup_atx_agent(self, noUIA=True):
         # stop atx-agent first
         self.shell(self.atx_agent_path, "server", "--stop")
         if self.is_atx_agent_outdated():
             self.logger.info("Install atx-agent %s", __atx_agent_version__)
             self.push_url(self.atx_agent_url, tgz=True, extract_name="atx-agent")
+
+        cmd = [self.atx_agent_path, 'server', '-d', "--addr", self.__atx_listen_addr]
+        if noUIA:
+            cmd.append('--nouia')
         
-        self.shell(self.atx_agent_path, 'server', '--nouia', '-d', "--addr", self.__atx_listen_addr)
+        self.shell(*cmd)
         self.logger.info("Check atx-agent version")
         self.check_atx_agent_version()
 
