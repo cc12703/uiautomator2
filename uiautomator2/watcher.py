@@ -25,8 +25,11 @@ def _callback_click(el):
 
 
 class WatchContext:
-    def __init__(self, d: "uiautomator2.Device", builtin: bool = False):
+    def __init__(self, d: "uiautomator2.Device", builtin: bool = False,
+                 # 检查周期
+                 interval: float = 2.0):
         self._d = d
+        self.__interval = interval
         self._callbacks = OrderedDict()
         self.__xpath_list = []
         self.__lock = threading.Lock()
@@ -127,10 +130,10 @@ class WatchContext:
         self.__started = True
         self.__stop.clear()
         self.__stopped.clear()
-        interval = 2.0  # 检查周期
+        # interval = 2.0  # 检查周期
         threading.Thread(target=self._run_forever,
                          daemon=True,
-                         args=(interval, )).start()
+                         args=(self.__interval, )).start()
 
     def stop(self):
         self.__stop.set()
