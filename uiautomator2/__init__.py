@@ -64,7 +64,7 @@ from .settings import Settings
 from .swipe import SwipeExt
 from .utils import list2cmdline, process_safe_wrapper, thread_safe_wrapper
 from .version import __apk_version__, __atx_agent_version__
-from .watcher import WatchContext, Watcher
+from .watcher import WatchContext, WatchNative, Watcher
 
 if six.PY2:
     FileNotFoundError = OSError
@@ -672,6 +672,7 @@ class _BaseClient(object):
             # atx-agent check has moved to _AgentRequestSession
             # If code goes here, it means atx-agent is fine.
 
+
             if self._is_alive():
                 return
 
@@ -740,11 +741,19 @@ class _BaseClient(object):
                     self.logger.debug("show float window")
                     time.sleep(1.0)
                     continue
+
+                self._reregWatchs()
                 return True
             time.sleep(1.0)
 
         self.uiautomator.stop()
         return False
+    
+
+    def _reregWatchs(self):
+        for wn in self.watchnatives:
+            wn.reRegWatch()
+
 
     def _is_apk_required(self) -> bool:
         apk_version = self._package_version("com.github.uiautomator")
@@ -1853,9 +1862,18 @@ class _InputMethodMixIn:
 
 
 class _PluginMixIn:
+
+
+    @cached_property
+    def watchnatives(self) -> List[WatchNative]:
+        return []
+
     @cached_property
     def settings(self) -> Settings:
         return Settings(self)
+    
+    def watch_native(self, prefix: str, interval: float = 5.0) -> WatchNative:
+        return WatchNative(self, prefix=prefix, interval=interval)
 
     def watch_context(self, autostart: bool = True, builtin: bool = False, interval: float = 2.0) -> WatchContext:
         wc = WatchContext(self, builtin=builtin, interval=interval)

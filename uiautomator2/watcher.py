@@ -7,7 +7,7 @@ import threading
 import time
 import typing
 from collections import OrderedDict
-from typing import Optional
+from typing import List, Optional
 
 from logzero import setup_logger
 
@@ -17,6 +17,87 @@ from uiautomator2.xpath import XPath
 from .utils import inject_call
 
 logger = logging.getLogger("uiautomator2")
+
+
+
+class WatchNativeItem:
+
+    def __init__(self, name, whenSelectors: List[uiautomator2.Selector],
+                 clickSelector: uiautomator2.Selector) -> None:
+        self.name = name
+        self.whenSelectors = whenSelectors
+        self.clickSelector = clickSelector
+
+
+class WatchNative:
+
+    def __init__(self, d: "uiautomator2.Device", prefix: str = "WN", interval: float = 5.0) -> None:
+        self._d = d
+        self._prefix = prefix
+        self._interval = interval
+        self._tempSelectors: List[uiautomator2.Selector] = []
+        self._items: List[WatchNativeItem] = []
+
+        self._stop = threading.Event()
+        self._stopped = threading.Event()
+        self._started = False
+
+    def when(self, **kwargs):
+        self._tempSelectors.append(uiautomator2.Selector(**kwargs))
+        return self
+    
+    def click(self, **kwargs):
+        name = f"{self._prefix}_{len(self._items)+1}"
+        selectors = tuple(self._tempSelectors)
+        self._tempSelectors = []
+        self._items.append(WatchNativeItem(name, selectors, uiautomator2.Selector(**kwargs)))
+    
+    def start(self):
+        if self._started:
+            return
+
+        self._started = True
+        self._stop.clear()
+        self._stopped.clear()
+        
+        self._regWatch()
+        self._d.watchnatives.append(self)
+
+        def _run_forever():
+            while not self._stop.is_set():
+                self._d.jsonrpc.runWatchers()
+                time.sleep(self._interval)
+
+        threading.Thread(target=_run_forever, daemon=True).start()
+
+    def stop(self):
+        if not self._started:
+            return
+
+        self._stop.set()
+        self._stopped.wait(timeout=10)
+        self._started = False
+
+        self._unregWatch()
+        self._d.watchnatives.remove(self)
+        
+
+    def reRegWatch(self):
+        if not self._started:
+            return
+
+        existedNames = self._d.jsonrpc.getWatchers()
+        for item in self._items:
+            if item.name not in existedNames:
+                self._d.jsonrpc.registerClickUiObjectWatcher(item.name, item.whenSelectors, item.clickSelector)
+
+    def _regWatch(self):
+        for item in self._items:
+            self._d.jsonrpc.registerClickUiObjectWatcher(item.name, item.whenSelectors, item.clickSelector)
+
+    def _unregWatch(self):
+        for item in self._items:
+            self._d.jsonrpc.removeWatcher(item.name)
 
 
 def _callback_click(el):
