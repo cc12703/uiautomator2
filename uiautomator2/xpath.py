@@ -58,6 +58,8 @@ def strict_xpath(xpath: str, logger=logger) -> str:
 
     if xpath.startswith('/'):
         pass
+    elif xpath.startswith('./'):
+        pass
     elif xpath.startswith('@'):
         xpath = '//*[@resource-id={!r}]'.format(xpath[1:])
     elif xpath.startswith('^'):
@@ -653,6 +655,12 @@ class XMLElement(object):
     def __repr__(self):
         x, y = self.center()
         return "<xpath.XMLElement [{tag!r} center:({x}, {y})]>".format(tag=self.elem.tag, x=x, y=y)
+
+
+    def xpath(self, xpath: str):
+        # print("XPATH:", xpath)
+        return XPathSelector(self._parent, xpath, self.elem)
+
 
     def get_xpath(self, strip_index: bool = False):
         """ get element full xpath """
