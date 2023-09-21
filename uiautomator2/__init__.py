@@ -204,12 +204,23 @@ class _AgentRequestSession(TimeoutRequestsSession):
             return super().request(method, url, **kwargs)
         except (requests.ConnectionError, requests.ReadTimeout,
                 adbutils.AdbError) as e:
+
             if not retry:
                 raise
+
+            if isinstance(e, requests.ConnectionError):
+                cause = e.__context__.args[1].__class__
+                if cause == ConnectionResetError:
+                    logger.info("reset error, retry direct")
+                    return super().request(method, url, **kwargs)
+                
+
             # if atx-agent is already running, just raise error
             if isinstance(e, requests.RequestException) and \
                     self.__client._is_agent_alive():
                 raise
+
+            
 
 
         if not self.__client._serial:

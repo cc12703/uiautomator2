@@ -9,9 +9,15 @@ sys.path.insert(0, os.getcwd())
 import uiautomator2 as u2
 
 
-def test_simple():
-    d = u2.connect()
+def test_retry():
+    #d = u2.connect()
+    d = u2.connect_wifi('xxx')
     print(d.info)
+
+    val = input('wait input')
+    print(d.info)
+
+
 
 
 def test_stop_app() :
@@ -24,6 +30,6 @@ def test_app_current() :
     print(d.app_current())
 
 if __name__ == "__main__":
-    #test_simple()
+    test_retry()
     #test_stop_app()
-    test_app_current()
+    #test_app_current()
