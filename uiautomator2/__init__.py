@@ -209,7 +209,11 @@ class _AgentRequestSession(TimeoutRequestsSession):
                 raise
 
             if isinstance(e, requests.ConnectionError):
-                cause = e.__context__.args[1].__class__
+                ctxArgs = e.__context__.args
+                cause = e.__context__.__cause__
+                if len(ctxArgs) >= 2:
+                    cause = e.__context__.args[1].__class__
+                    
                 if cause == ConnectionResetError:
                     logger.info("reset error, retry direct")
                     return super().request(method, url, **kwargs)
