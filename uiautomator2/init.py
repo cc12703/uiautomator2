@@ -264,6 +264,9 @@ class Initer():
             "/releases/download/v0.2.0/WhatsInput_v1.0.apk"
         ])
 
+    @property
+    def scrcpy_url(self) :
+        return "https://github.com/Genymobile/scrcpy/releases/download/v2.1.1/scrcpy-server-v2.1.1"
             
 
     @retry(tries=2, logger=logger)
@@ -442,6 +445,11 @@ class Initer():
         return version
 
     def install(self):
+
+
+        self.logger.info("Install scrcpy-server")
+        self.push_url(self.scrcpy_url, "/data/local/tmp/scrcpy-serv-agent.jar")
+        
         """
         TODO: push minicap and minitouch from tgz file
         """
@@ -489,6 +497,7 @@ class Initer():
         self._device.shell(["rm", "/data/local/tmp/minicap.so"])
         self._device.shell(["rm", "/data/local/tmp/minitouch"])
         self.logger.info("minicap, minitouch removed")
+        self._device.shell(["rm", "/data/local/tmp/scrcpy-serv-agent.jar"])
         self._device.shell(["pm", "uninstall", "com.github.uiautomator"])
         self._device.shell(["pm", "uninstall", "com.github.uiautomator.test"])
         self._device.shell(["pm", "uninstall", "com.buscode.whatsinput"])
