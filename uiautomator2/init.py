@@ -275,6 +275,12 @@ class Initer():
             
 
     @retry(tries=2, logger=logger)
+    def cache_url(self, url) :
+        mirror_download(url,
+                        filename=os.path.basename(url),
+                            logger=self.logger)
+
+    @retry(tries=2, logger=logger)
     def push_url(self, url, dest=None, mode=0o755, tgz=False, extract_name=None):  # yapf: disable
         path = mirror_download(url,
                                filename=os.path.basename(url),
@@ -512,6 +518,18 @@ class Initer():
         self._device.shell(["pm", "uninstall", "com.github.uiautomator.test"])
         self._device.shell(["pm", "uninstall", "com.buscode.whatsinput"])
         self.logger.info("com.github.uiautomator uninstalled, all done !!!")
+
+    def cache(self):
+        self.cache_url(self.atx_agent_url)
+        for (name, url) in self.jar_urls:
+            self.cache_url(url)
+
+        self.cache_url(self.whatsinput_url)
+        self.cache_url(self.minitouch_url)
+        for url in self.minicap_urls:
+            self.cache_url(url)
+
+        self.cache_url(self.scrcpy_url)
 
 
 if __name__ == "__main__":

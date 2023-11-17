@@ -43,6 +43,13 @@ def cmd_purge(args):
     init.uninstall()
 
 
+def cmd_cache(args):
+    """ cache minicap, minitouch, uiautomator ... """
+    device = adbutils.adb.device(args.serial)
+    init = Initer(device, loglevel=logging.DEBUG)
+    init.cache()
+
+
 def cmd_screenshot(args):
     d = u2.connect(args.serial)
     d.screenshot().save(args.filename)
@@ -253,6 +260,9 @@ _commands = [
     dict(action=cmd_purge,
         command="purge",
         help="remove minitouch, minicap, atx app etc, from device"),
+    dict(action=cmd_cache,
+        command="cache",
+        help="cache atx app, minitouch, minicap to local")
 ]
 
 
