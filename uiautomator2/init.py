@@ -24,6 +24,8 @@ appdir = os.path.join(os.path.expanduser("~"), '.uiautomator2')
 GITHUB_BASEURL = "https://github.com/openatx"
 GITHUB_BASEURL_CUSTOM = "https://github.com/cc12703"
 
+SCRCPY_FILEPATH = "/data/local/tmp/scrcpy-serv-agent.jar"
+
 
 class DownloadBar(progress.bar.PixelBar):
     message = "Downloading"
@@ -428,6 +430,12 @@ class Initer():
         self.logger.info("Check atx-agent version")
         self.check_atx_agent_version()
 
+    
+    def setup_scrcpy(self) :
+        self.logger.info("Install scrcpy-server")
+        self.push_url(self.scrcpy_url, SCRCPY_FILEPATH)
+
+
     @retry(
         (requests.ConnectionError, requests.ReadTimeout, requests.HTTPError),
         delay=.5,
@@ -447,8 +455,7 @@ class Initer():
     def install(self):
 
 
-        self.logger.info("Install scrcpy-server")
-        self.push_url(self.scrcpy_url, "/data/local/tmp/scrcpy-serv-agent.jar")
+        self.setup_scrcpy()        
         
         """
         TODO: push minicap and minitouch from tgz file
@@ -497,7 +504,7 @@ class Initer():
         self._device.shell(["rm", "/data/local/tmp/minicap.so"])
         self._device.shell(["rm", "/data/local/tmp/minitouch"])
         self.logger.info("minicap, minitouch removed")
-        self._device.shell(["rm", "/data/local/tmp/scrcpy-serv-agent.jar"])
+        self._device.shell(["rm", SCRCPY_FILEPATH])
         self._device.shell(["pm", "uninstall", "com.github.uiautomator"])
         self._device.shell(["pm", "uninstall", "com.github.uiautomator.test"])
         self._device.shell(["pm", "uninstall", "com.buscode.whatsinput"])
