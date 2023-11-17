@@ -172,6 +172,9 @@ class IniterOfADBWifi():
     def installAgent(self):
         self._initer.setup_atx_agent(noUIA=False)
 
+    def installScrcpy(self):
+        self._initer.setup_scrcpy()
+
     def installApk(self, fileName: str):
         self._device.install(fileName, nolaunch=True)
     
