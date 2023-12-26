@@ -132,7 +132,10 @@ class UiObject(object):
     def screenshot(self) -> Image.Image:
         im = self.session.screenshot()
         return im.crop(self.bounds())
-
+    
+    def click_direct(self):
+        self.jsonrpc.click(self.selector)
+    
     def click(self, timeout=None, offset=None):
         """
         Click UI element. 
@@ -207,6 +210,14 @@ class UiObject(object):
     def click_exists(self, timeout=0):
         try:
             self.click(timeout=timeout)
+            return True
+        except UiObjectNotFoundError:
+            return False
+        
+    def click_exists_center(self, timeout=0):
+        try:
+            self.must_wait(timeout=timeout)
+            self.jsonrpc.click(self.selector)
             return True
         except UiObjectNotFoundError:
             return False
@@ -355,10 +366,19 @@ class UiObject(object):
             return self.jsonrpc.clearTextField(self.selector)
         else:
             return self.jsonrpc.setText(self.selector, text)
+        
+    def set_text_direct(self, text):
+        if not text:
+            return self.jsonrpc.clearTextField(self.selector)
+        else:
+            return self.jsonrpc.setText(self.selector, text)
 
     def get_text(self, timeout=None):
         """ get text from field """
         self.must_wait(timeout=timeout)
+        return self.jsonrpc.getText(self.selector)
+
+    def get_text_direct(self):
         return self.jsonrpc.getText(self.selector)
 
     def clear_text(self, timeout=None):
