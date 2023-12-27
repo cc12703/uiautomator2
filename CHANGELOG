@@ -1,6 +1,68 @@
 CHANGES
 =======
 
+2.20.15
+-------
+
+* add fast api  of select
+
+2.20.14
+-------
+
+* add cmd cache
+
+2.20.13
+-------
+
+* add installScrcpy
+
+2.20.12
+-------
+
+* add  setup\_scrcpy
+
+2.20.11
+-------
+
+* update agent version
+
+2.20.10
+-------
+
+* support scrcpy-serv
+* update agent
+
+2.20.9
+------
+
+* fix index out of range
+
+2.20.8
+------
+
+* long\_click support offset param
+
+2.20.7
+------
+
+* support retry direct for reset error by peer
+
+2.20.6
+------
+
+* support  find chind by xpath
+
+2.20.5
+------
+
+* add  WatchNative
+
+2.20.4
+------
+
+* WatchContext add  interval  paramter
+* update doc
+
 2.20.3
 ------
 

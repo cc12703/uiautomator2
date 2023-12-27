@@ -133,10 +133,10 @@ class UiObject(object):
         im = self.session.screenshot()
         return im.crop(self.bounds())
     
-    def click_direct(self):
-        self.jsonrpc.click(self.selector)
+    def click_nowait(self, offset=None):
+        self.click(wait=False, offset=offset)
     
-    def click(self, timeout=None, offset=None):
+    def click(self, wait=True, timeout=None, offset=None):
         """
         Click UI element. 
 
@@ -150,15 +150,20 @@ class UiObject(object):
         Raises:
             UiObjectNotFoundError
         """
-        self.must_wait(timeout=timeout)
-        x, y = self.center(offset=offset)
-        # ext.htmlreport need to comment bellow code
-        # if info['clickable']:
-        #     return self.jsonrpc.click(self.selector)
-        self.session.click(x, y)
-        # delay = self.session.click_post_delay
-        # if delay:
-        #     time.sleep(delay)
+        if wait:
+            self.must_wait(timeout=timeout)
+
+        if offset is None:
+            self.jsonrpc.click(self.selector)
+        else:
+            x, y = self.center(offset=offset)
+            # ext.htmlreport need to comment bellow code
+            # if info['clickable']:
+            #     return self.jsonrpc.click(self.selector)
+            self.session.click(x, y)
+            # delay = self.session.click_post_delay
+            # if delay:
+            #     time.sleep(delay)
 
     def bounds(self):
         """
@@ -214,14 +219,6 @@ class UiObject(object):
         except UiObjectNotFoundError:
             return False
         
-    def click_exists_center(self, timeout=0):
-        try:
-            self.must_wait(timeout=timeout)
-            self.jsonrpc.click(self.selector)
-            return True
-        except UiObjectNotFoundError:
-            return False
-
     def long_click(self, duration: float = 0.5, timeout=None, offset=None):
         """
         Args:
@@ -360,26 +357,26 @@ class UiObject(object):
         """ alias of set_text """
         return self.set_text(text)
 
-    def set_text(self, text, timeout=None):
-        self.must_wait(timeout=timeout)
+    def set_text(self, text, wait=True, timeout=None):
+        if wait:
+            self.must_wait(timeout=timeout)
+
         if not text:
             return self.jsonrpc.clearTextField(self.selector)
         else:
             return self.jsonrpc.setText(self.selector, text)
         
-    def set_text_direct(self, text):
-        if not text:
-            return self.jsonrpc.clearTextField(self.selector)
-        else:
-            return self.jsonrpc.setText(self.selector, text)
+    def set_text_nowait(self, text):
+        self.set_text(text, wait=False)
 
-    def get_text(self, timeout=None):
+    def get_text(self, wait=True, timeout=None):
         """ get text from field """
-        self.must_wait(timeout=timeout)
+        if wait:
+            self.must_wait(timeout=timeout)
         return self.jsonrpc.getText(self.selector)
 
-    def get_text_direct(self):
-        return self.jsonrpc.getText(self.selector)
+    def get_text_nowait(self):
+        return self.get_text(wait=False)
 
     def clear_text(self, timeout=None):
         self.must_wait(timeout=timeout)

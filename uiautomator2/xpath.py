@@ -709,12 +709,15 @@ class XMLElement(object):
         x, y, width, height = self.rect
         return x + int(width * px), y + int(height * py)
 
-    def click(self):
+    def click(self, wait=True):
         """
         click element, 100ms between down and up
         """
         x, y = self.center()
         self._parent.send_click(x, y)
+
+    def click_nowait(self):
+        self.click()
 
     def long_click(self):
         """
