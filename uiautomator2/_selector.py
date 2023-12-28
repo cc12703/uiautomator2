@@ -219,7 +219,7 @@ class UiObject(object):
         except UiObjectNotFoundError:
             return False
         
-    def long_click(self, duration: float = 0.5, timeout=None, offset=None):
+    def long_click(self, duration: float = 0.5, wait=True, timeout=None, offset=None):
         """
         Args:
             duration (float): seconds of pressed
@@ -229,7 +229,9 @@ class UiObject(object):
 
         # if info['longClickable'] and not duration:
         #     return self.jsonrpc.longClick(self.selector)
-        self.must_wait(timeout=timeout)
+        if wait:
+            self.must_wait(timeout=timeout)
+        
         x, y = self.center(offset=offset)
         return self.session.long_click(x, y, duration)
 

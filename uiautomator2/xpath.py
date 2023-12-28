@@ -591,7 +591,7 @@ class XPathSelector(object):
         self.logger.info("click %d, %d", x, y)
         self._parent.send_click(x, y)
 
-    def click(self, timeout=None):
+    def click(self, wait=True, timeout=None):
         """ find element and perform click """
         try:
             el = self.get(timeout=timeout)
