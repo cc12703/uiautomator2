@@ -530,6 +530,9 @@ class Initer():
         for (name, url) in self.jar_urls:
             self.cache_url(url)
 
+        for filename, url in app_uiautomator_apk_urls():
+            self.cache_url(url)
+
         self.cache_url(self.whatsinput_url)
         self.cache_url(self.minitouch_url)
         for url in self.minicap_urls:
