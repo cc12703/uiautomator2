@@ -34,7 +34,7 @@ import xml.dom.minidom
 from collections import defaultdict, namedtuple
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 # import progress.bar
 import adbutils
@@ -1312,6 +1312,12 @@ class _Device(_BaseClient):
         output, _ = self.shell(['pm', 'list', 'users'])
         ids = re.findall(r'\tUserInfo{([^:]+):[^:]+:[^:]+} running', output)
         return ids
+    
+    def chkurl_by_cellular(self, urls: List[str]) -> bool:
+        return self.jsonrpc.chkUrlByCellular(urls)
+    
+    def simcard_info(self) -> List[Any]:
+        return self.jsonrpc.getSimcardInfo()
 
     @cached_property
     def serial(self) -> str:

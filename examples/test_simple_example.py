@@ -14,6 +14,14 @@ def test_click():
     d = u2.connect()
     d(resourceId='com.tencent.wework:id/l3p').click_direct()
 
+def test_simcard() :
+    d = u2.connect()
+    print(d.simcard_info())
+
+def test_chkurl() :
+    d = u2.connect()
+    print(d.chkurl_by_cellular(['http://www.baidu.com']))
+
 def test_retry():
     #d = u2.connect()
     d = u2.connect_wifi('xxx')
@@ -35,7 +43,9 @@ def test_app_current() :
     print(d.app_current())
 
 if __name__ == "__main__":
-    test_click()
+    test_chkurl()
+    #test_simcard()
+    #test_click()
     #test_retry()
     #test_stop_app()
     #test_app_current()
