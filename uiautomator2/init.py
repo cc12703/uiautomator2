@@ -172,6 +172,9 @@ class IniterOfADBWifi():
     def installAgent(self):
         self._initer.setup_atx_agent(noUIA=False)
 
+    def installService(self):
+        self._initer.setup_atx_service()
+
     def installScrcpy(self):
         self._initer.setup_scrcpy()
 
@@ -443,6 +446,9 @@ class Initer():
     def setup_scrcpy(self) :
         self.logger.info("Install scrcpy-server")
         self.push_url(self.scrcpy_url, SCRCPY_FILEPATH)
+
+    def setup_atx_service(self) :
+        self._install_uiautomator_apks()
 
 
     @retry(
