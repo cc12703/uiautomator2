@@ -946,6 +946,11 @@ class _Device(_BaseClient):
         assert data['success'], data['description']
         self.logger.info("%s", data['description'])
 
+
+    def stop_atx_agent(self) :
+        self.http.get("/stop")
+
+
     @cached_property
     def device_info(self):
         return self.http.get("/info").json()
