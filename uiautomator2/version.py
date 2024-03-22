@@ -9,7 +9,7 @@ except pkg_resources.DistributionNotFound:
 
 # See ChangeLog for details
 
-__apk_version__ = '3.0.4'
+__apk_version__ = '3.0.5'
 # 3.0.4 add oper of chkurl and simcard info
 # 2.3.3 make float windows smaller
 # 2.3.2 merge pull requests # require atx-agent>=0.10.0
