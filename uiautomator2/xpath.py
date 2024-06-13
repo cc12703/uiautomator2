@@ -657,6 +657,10 @@ class XMLElement(object):
         return "<xpath.XMLElement [{tag!r} center:({x}, {y})]>".format(tag=self.elem.tag, x=x, y=y)
 
 
+
+    def build_string(self):
+        return etree.tostring(self.elem, encoding='utf-8').strip().decode('utf-8')
+
     def xpath(self, xpath: str):
         # print("XPATH:", xpath)
         return XPathSelector(self._parent, xpath, self.elem)
