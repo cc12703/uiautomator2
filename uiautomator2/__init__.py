@@ -2132,3 +2132,10 @@ def installByADBWifi(addr: str, agentAddr: Optional[str]) :
         subprocess.call([adbutils.adb_path(), "disconnect", addr])
 
 
+
+def installByADBUSB(serial: str) :
+    try :
+        initer = Initer(adbutils.adb.device(serial))
+        initer.install()
+    except Exception as e :
+        raise InstallError(e)
