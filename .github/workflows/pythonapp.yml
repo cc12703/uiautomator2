@@ -13,10 +13,10 @@ jobs:
     - uses: actions/checkout@master
       with:
         fetch-depth: 10
-    - name: Set up Python 3.7 
+    - name: Set up Python
       uses: actions/setup-python@v1
       with:
-        python-version: 3.7 
+        python-version: 3.8.18
     - name: Install dependencies
       run: |
         ./uiautomator2/assets/sync.sh
