@@ -8,15 +8,26 @@ sys.path.insert(0, os.getcwd())
 
 import uiautomator2 as u2
 
-
+#u2.STATIS = True
 
 def test_click():
     d = u2.connect()
-    d(resourceId='com.tencent.wework:id/l3p').click_direct()
+    d(text="消息").click()
+    d(text="消息").click_nowait()
 
 def test_simcard() :
     d = u2.connect()
     print(d.simcard_info())
+
+def test_dump() :
+    d = u2.connect()
+    data = d.dump_hierarchy()
+    print(len(data))
+
+def test_exists() :
+    d = u2.connect()
+    print(d(resourceId='com.tencent.wework:id/l3p').exists())
+    print(d(text='消息').exists())
 
 def test_chkurl() :
     d = u2.connect()
@@ -43,8 +54,11 @@ def test_app_current() :
     print(d.app_current())
 
 if __name__ == "__main__":
-    test_chkurl()
-    #test_simcard()
+    #test_chkurl()
+    #test_click()
+    test_simcard()
+    test_dump()
+    test_exists()
     #test_click()
     #test_retry()
     #test_stop_app()

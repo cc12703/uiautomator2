@@ -70,6 +70,7 @@ if six.PY2:
     FileNotFoundError = OSError
 
 DEBUG = False
+STATIS = False
 WAIT_FOR_DEVICE_TIMEOUT = int(os.getenv("WAIT_FOR_DEVICE_TIMEOUT", 20))
 
 
@@ -107,15 +108,16 @@ class TimeoutRequestsSession(requests.Session):
         if isinstance(kwargs['timeout'], (int, float)):
             kwargs['timeout'] = (3, kwargs['timeout'])
 
+
         verbose = hasattr(self, 'debug') and self.debug
         if verbose:
             data = kwargs.get('data') or '""'
             if isinstance(data, dict):
                 data = json.dumps(data)
-            time_start = time.time()
             print(datetime.now().strftime("%H:%M:%S.%f")[:-3],
                   "$ curl -X {method} -d '{data}' '{url}'".format(
                       method=method, url=url, data=data))  # yaml: disable
+        time_start = time.time()
         try:
             resp = super(TimeoutRequestsSession,
                          self).request(method, url, **kwargs)
@@ -129,6 +131,7 @@ class TimeoutRequestsSession(requests.Session):
                     "Response (%d ms) >>>\n" %
                     ((time.time() - time_start) * 1000) + resp.text.rstrip() +
                     "\n<<< END")
+            
 
             from types import MethodType
 
@@ -192,6 +195,13 @@ class _AgentRequestSession(TimeoutRequestsSession):
         super().__init__()
         self.__client = clnt
 
+
+    def __statisHttp(self, resp, start_time, method, url):
+        if STATIS and ('X-Process-TimeMS' in resp.headers):
+            tag = resp.request.headers.get('X-Process-Tag', '')
+            self.__client.logger_statis.info("http %s %.0f %s", f"{method}-{url}-{tag}",
+                                (time.time() - start_time)*1000, resp.headers['X-Process-TimeMS'])
+
     def request(self, method, url, **kwargs):
         """
         Raises:
@@ -200,8 +210,11 @@ class _AgentRequestSession(TimeoutRequestsSession):
         retry = kwargs.pop("retry", True)
         try:
             # may raise adbutils.AdbError when device offline
+            time_start = time.time()
             url = self.__client.path2url(url)
-            return super().request(method, url, **kwargs)
+            resp = super().request(method, url, **kwargs)
+            self.__statisHttp(resp, time_start, method, url)
+            return resp
         except (requests.ConnectionError, requests.ReadTimeout,
                 adbutils.AdbError) as e:
 
@@ -239,7 +252,10 @@ class _AgentRequestSession(TimeoutRequestsSession):
         self.__client._prepare_atx_agent()
         self.__client._prepare_atx_agent_finish()
         url = self.__client.path2url(url)
-        return super().request(method, url, **kwargs)
+        time_start = time.time()
+        resp = super().request(method, url, **kwargs)
+        self.__statisHttp(resp, time_start, method, url)
+        return resp
 
 
 class _BaseClient(object):
@@ -274,6 +290,7 @@ class _BaseClient(object):
         log_format = f'%(color)s[%(levelname)1.1s %(asctime)s %(module)s:%(lineno)d]%(end_color)s [pid:%(process)d] [{self._serial}] %(message)s'
         formatter = logzero.LogFormatter(fmt=log_format)
         self._logger = setup_logger(name="uiautomator2.client", level=logging.DEBUG, formatter=formatter)
+        self._logger_statis = setup_logger("uiautomator2.client-statis", level=logging.DEBUG, formatter=formatter)
         
         filelock_path = os.path.expanduser("~/.uiautomator2/filelocks/") + base64.urlsafe_b64encode(self._serial.encode('utf-8')).decode('utf-8') + ".lock"
         os.makedirs(os.path.dirname(filelock_path), exist_ok=True)
@@ -285,6 +302,12 @@ class _BaseClient(object):
     @property
     def logger(self) -> logging.Logger:
         return self._logger
+    
+    # message format: <event> <action> <total-time> <sub-time>
+    @property
+    def logger_statis(self) -> logging.Logger:
+        return self._logger_statis
+
 
     def set_app_installer(self, app_installer: AppInstaller):
         """ set uiautomator.apk installer """
@@ -569,7 +592,7 @@ class _BaseClient(object):
         }
         data = json.dumps(data)
         res = self.http.post("/jsonrpc/0",
-                             headers={"Content-Type": "application/json"},
+                             headers={"Content-Type": "application/json", "X-Process-Tag": method},
                              data=data,
                              timeout=http_timeout)
 
