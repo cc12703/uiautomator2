@@ -80,7 +80,7 @@ log_format = '%(color)s[%(levelname)1.1s %(asctime)s %(module)s:%(lineno)d]%(end
 formatter = logzero.LogFormatter(fmt=log_format)
 logger = setup_logger("uiautomator2", level=logging.DEBUG, formatter=formatter)
 
-# message format:<who> <event> <action> <total-time> <sub-time>
+# message format:<event> <action> <total-time> <sub-time>
 logger_statis = setup_logger("uiautomator2.statis", level=logging.DEBUG, formatter=formatter)
 _mswindows = (os.name == "nt")
 
@@ -202,7 +202,7 @@ class _AgentRequestSession(TimeoutRequestsSession):
     def __statisHttp(self, resp, start_time, method, url):
         if STATIS and ('X-Process-TimeMS' in resp.headers):
             tag = resp.request.headers.get('X-Process-Tag', '')
-            logger_statis.info("%s http %s %.0f %s", self.__client.logWho, f"{method}-{url}-{tag}",
+            logger_statis.info("http %s %.0f %s", f"{method}-{url}-{tag}",
                                (time.time() - start_time)*1000, resp.headers['X-Process-TimeMS'])
 
     def request(self, method, url, **kwargs):
@@ -301,7 +301,6 @@ class _BaseClient(object):
         self._app_installer: AppInstaller = None
         self._devWifiOfReset: adbutils.AdbDevice  = None
 
-        self.logWho = "unknown"
 
     @property
     def logger(self) -> logging.Logger:
