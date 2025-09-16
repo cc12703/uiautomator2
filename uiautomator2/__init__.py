@@ -79,6 +79,9 @@ WAIT_FOR_DEVICE_TIMEOUT = int(os.getenv("WAIT_FOR_DEVICE_TIMEOUT", 20))
 log_format = '%(color)s[%(levelname)1.1s %(asctime)s %(module)s:%(lineno)d]%(end_color)s [pid:%(process)d] %(message)s'
 formatter = logzero.LogFormatter(fmt=log_format)
 logger = setup_logger("uiautomator2", level=logging.DEBUG, formatter=formatter)
+
+# message format:<who> <event> <action> <total-time> <sub-time>
+logger_statis = setup_logger("uiautomator2.statis", level=logging.DEBUG, formatter=formatter)
 _mswindows = (os.name == "nt")
 
 
@@ -199,8 +202,8 @@ class _AgentRequestSession(TimeoutRequestsSession):
     def __statisHttp(self, resp, start_time, method, url):
         if STATIS and ('X-Process-TimeMS' in resp.headers):
             tag = resp.request.headers.get('X-Process-Tag', '')
-            self.__client.logger_statis.info("http %s %.0f %s", f"{method}-{url}-{tag}",
-                                (time.time() - start_time)*1000, resp.headers['X-Process-TimeMS'])
+            logger_statis.info("%s http %s %.0f %s", self.__client.logWho, f"{method}-{url}-{tag}",
+                               (time.time() - start_time)*1000, resp.headers['X-Process-TimeMS'])
 
     def request(self, method, url, **kwargs):
         """
@@ -290,7 +293,6 @@ class _BaseClient(object):
         log_format = f'%(color)s[%(levelname)1.1s %(asctime)s %(module)s:%(lineno)d]%(end_color)s [pid:%(process)d] [{self._serial}] %(message)s'
         formatter = logzero.LogFormatter(fmt=log_format)
         self._logger = setup_logger(name="uiautomator2.client", level=logging.DEBUG, formatter=formatter)
-        self._logger_statis = setup_logger("uiautomator2.client-statis", level=logging.DEBUG, formatter=formatter)
         
         filelock_path = os.path.expanduser("~/.uiautomator2/filelocks/") + base64.urlsafe_b64encode(self._serial.encode('utf-8')).decode('utf-8') + ".lock"
         os.makedirs(os.path.dirname(filelock_path), exist_ok=True)
@@ -299,14 +301,12 @@ class _BaseClient(object):
         self._app_installer: AppInstaller = None
         self._devWifiOfReset: adbutils.AdbDevice  = None
 
+        self.logWho = "unknown"
+
     @property
     def logger(self) -> logging.Logger:
-        return self._logger
-    
-    # message format: <event> <action> <total-time> <sub-time>
-    @property
-    def logger_statis(self) -> logging.Logger:
-        return self._logger_statis
+        return self._logger        
+
 
 
     def set_app_installer(self, app_installer: AppInstaller):
