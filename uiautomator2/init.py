@@ -402,19 +402,30 @@ class Initer():
     
 
     def _install_input_apk(self) :
-        self.shell("pm", "uninstall", "com.buscode.whatsinput")
         path = self.push_url(self.whatsinput_url, mode=0o644)
+        self.shell("pm", "uninstall", "com.buscode.whatsinput")
         self.shell("pm", "install", "-r", "-t", path)
         self.logger.info("- whatsinput installed")
+
+
+    def _uninstall_uiautomator_apk(self, fileName) :
+        if fileName == "app-uiautomator.apk" :
+            pkgName = "com.github.uiautomator"
+        elif fileName == "app-uiautomator-test.apk" :
+            pkgName = "com.github.uiautomator.test"
+        else :
+            raise Exception("Unknown apk name %s" % fileName)
+
+        self.shell("pm", "uninstall", pkgName)         
 
     def _install_uiautomator_apks(self):
         """ use uiautomator 2.0 to run uiautomator test
         通常在连接USB数据线的情况下调用
         """
-        self.shell("pm", "uninstall", "com.github.uiautomator")
-        self.shell("pm", "uninstall", "com.github.uiautomator.test")
+      
         for filename, url in app_uiautomator_apk_urls():
             path = self.push_url(url, mode=0o644)
+            self._uninstall_uiautomator_apk(filename)
             self.shell("pm", "install", "-r", "-t", path)
             self.logger.info("- %s installed", filename)
 

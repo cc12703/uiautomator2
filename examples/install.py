@@ -24,6 +24,12 @@ def installByADB() :
     init.install()
 
 
+def installService() :
+    dev = u2.adbutils.adb.device()
+    init = u2.init.Initer(dev)
+    init.setup_atx_service()
+
+
 if __name__ == '__main__':
    #install() 
-   installByADB()
+   installService()
