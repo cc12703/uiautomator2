@@ -461,6 +461,12 @@ class Initer():
     def setup_atx_service(self) :
         self._install_uiautomator_apks()
 
+    def update_atx_service(self) :
+        for filename, url in app_uiautomator_apk_urls():
+            path = self.push_url(url, mode=0o644)
+            self.shell("pm", "install", "-t", path)
+            self.logger.info("- %s updated", filename)
+
 
     @retry(
         (requests.ConnectionError, requests.ReadTimeout, requests.HTTPError),
