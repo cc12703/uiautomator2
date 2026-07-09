@@ -207,6 +207,20 @@ class XPath(object):
                               self._click_after_delay)
             time.sleep(self._click_after_delay)
 
+    def send_clickwithpress(self, x, y, downMS, pressVal):
+        if self._click_before_delay:
+            self.logger.debug("click before delay %.1f seconds",
+                              self._click_after_delay)
+            time.sleep(self._click_before_delay)
+
+        self._d.clickWithPress(x, y, downMS, pressVal)
+
+        if self._click_after_delay:
+            self.logger.debug("click after delay %.1f seconds",
+                              self._click_after_delay)
+            time.sleep(self._click_after_delay)
+
+
     def send_longclick(self, x, y):
         self._d.long_click(x, y)
 
@@ -719,6 +733,11 @@ class XMLElement(object):
         """
         x, y = self.center()
         self._parent.send_click(x, y)
+
+
+    def click_withpress(self, downMS: int = 100, pressVal: float = 1):
+        x, y = self.center()
+        self._parent.send_clickwithpress(x, y, downMS, pressVal)
 
     def click_nowait(self):
         self.click()

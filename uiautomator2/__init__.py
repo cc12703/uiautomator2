@@ -1174,6 +1174,12 @@ class _Device(_BaseClient):
         with self._operation_delay("click"):
             self.jsonrpc.click(x, y)
 
+    def clickWithPress(self, x: Union[float, int], y: Union[float, int],
+                       downMS: int, pressVal: float):
+        x, y = self.pos_rel2abs(x, y)
+        with self._operation_delay("click"):
+            self.jsonrpc.clickWithPress(x, y, downMS, pressVal)
+
     def double_click(self, x, y, duration=0.1):
         """
         double click position

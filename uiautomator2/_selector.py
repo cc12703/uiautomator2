@@ -165,6 +165,32 @@ class UiObject(object):
             # if delay:
             #     time.sleep(delay)
 
+
+    def clickWithPress(self, wait=True, timeout=None, offset=None,
+                       downMS: int = 100, pressVal: float = 1):
+        """
+        Click UI element with press.
+
+        Args:
+            timeout: seconds wait element show up
+            offset: (xoff, yoff) default (0.5, 0.5) -> center
+            downMS: milliseconds of pressed
+            pressVal: pressure value of pressed
+
+        Raises:
+            UiObjectNotFoundError
+        """
+        if wait:
+            self.must_wait(timeout=timeout)
+
+        if offset is None:
+            x, y = self.center(offset=(0.5, 0.5))
+        else:
+            x, y = self.center(offset=offset)
+        
+        self.session.clickWithPress(x, y, downMS, pressVal)
+
+
     def bounds(self):
         """
         Returns:
