@@ -179,7 +179,7 @@ Thank you to all our sponsors! ✨🍰✨
 
     # 高阶用法
     # init and set atx-agent listen in all address
-    python -m uiautomator2 init --addr :7912
+    python -m uiautomator2 init --addr :8310
     ```
 
     有时候init也会出错，请参考[手动Init指南](https://github.com/openatx/uiautomator2/wiki/Manual-Init)
@@ -642,7 +642,7 @@ Below is a possible output:
  'brand': 'SMARTISAN',
  'model': 'OD103',
  'hwaddr': 'b4:0b:44:e6:1f:90',
- 'port': 7912,
+ 'port': 8310,
  'sdk': 25,
  'agentVersion': 'dev',
  'display': {'width': 1080, 'height': 1920},

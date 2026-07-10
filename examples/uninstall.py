@@ -20,5 +20,11 @@ def uninstallByADB() :
     init.uninstall()
 
 
+def removeOldFile() :
+    dev = u2.adbutils.adb.device()
+    init = u2.init.Initer(dev)
+    init.removeOldFiles()
+
 if __name__ == '__main__':
-   uninstallByADB()
+   #uninstallByADB()
+   removeOldFile()

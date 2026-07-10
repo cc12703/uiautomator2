@@ -9,7 +9,7 @@ except pkg_resources.DistributionNotFound:
 
 # See ChangeLog for details
 
-__apk_version__ = '3.0.11'
+__apk_version__ = '3.1.1'
 # 3.0.4 add oper of chkurl and simcard info
 # 2.3.3 make float windows smaller
 # 2.3.2 merge pull requests # require atx-agent>=0.10.0
@@ -43,7 +43,7 @@ __apk_version__ = '3.0.11'
 __jar_version__ = 'v0.1.6'  # no useless for now.
 # v0.1.6 first release version
 
-__atx_agent_version__ = '1.1.2'
+__atx_agent_version__ = '1.2.1'
 # 1.0.2 httpserver support gzip
 # 0.10.0 remove tunnel code, use androidx.test.runner
 # 0.9.6 fix security reason for remote control device

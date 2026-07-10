@@ -25,7 +25,7 @@ import uiautomator2
 from ._proto import Direction
 from .abcd import BasicUIMeta
 from .exceptions import XPathElementNotFoundError
-from .utils import U, inject_call, swipe_in_bounds
+from .utils import inject_call, swipe_in_bounds, ROOT_PATH
 
 try:
     from lxml import etree
@@ -915,7 +915,7 @@ class AdbUI(BasicUIMeta):
     def screenshot(self):
         d = self._d
         json_output = d.shell([
-            "LD_LIBRARY_PATH=/data/local/tmp", "/data/local/tmp/minicap", "-i",
+            "LD_LIBRARY_PATH=" + ROOT_PATH, ROOT_PATH + "/minicap", "-i",
             "2&>/dev/null"
         ]).strip()
         data = json.loads(json_output)
@@ -923,8 +923,8 @@ class AdbUI(BasicUIMeta):
         remote_image_path = "/sdcard/minicap.jpg"
         d.shell(["rm", remote_image_path])
         d.shell([
-            "LD_LIBRARY_PATH=/data/local/tmp",
-            "/data/local/tmp/minicap",
+            "LD_LIBRARY_PATH=" + ROOT_PATH,
+            ROOT_PATH + "/minicap",
             "-P", "{0}x{1}@{0}x{1}/{2}".format(w, h, r),
             "-s", ">" + remote_image_path]) # yapf: disable
 

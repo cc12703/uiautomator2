@@ -16,6 +16,9 @@ from ._proto import Direction
 from .exceptions import SessionBrokenError, UiObjectNotFoundError
 
 
+
+ROOT_PATH = "/data/local/tmp/.u2p"
+
 def U(x):
     if six.PY3:
         return x

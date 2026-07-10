@@ -16,7 +16,7 @@ import uiautomator2 as u2
 def main():
     u = u2.connect()
     ids = u.user_list_id()
-    u.app_start('com.tencent.mm', user_id=ids[0])
+    u.app_start('com.tencent.wework', user_id=ids[0])
 
 
 

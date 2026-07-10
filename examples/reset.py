@@ -19,7 +19,7 @@ def resetByADB() :
 def resetByWifi() :
     d = u2.connect_wifi('192.168.1.242')
     d.settings['reset_adb_wifi_addr'] = '192.168.1.242:34439'
-    d.settings['reset_atx_listen_addr'] = ':7912'
+    d.settings['reset_atx_listen_addr'] = ':8310'
     print(d.device_info)
 
     
@@ -36,7 +36,7 @@ def resetByADBWifi() :
     d = u2.connect_adb_wifi('192.168.1.175:34619')
 
     #d.settings['reset_adb_wifi_addr'] = '192.168.1.242:34439'
-    d.settings['reset_atx_listen_addr'] = ':7912'
+    d.settings['reset_atx_listen_addr'] = ':8310'
     d.reset_uiautomator()
 
     u2.disconnect_adb_wifi('192.168.1.175:34619')

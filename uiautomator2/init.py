@@ -17,14 +17,14 @@ from retry import retry
 
 from uiautomator2.version import (__apk_version__, __atx_agent_version__, __input_apk_version__,
                                   __jar_version__, __version__)
-from uiautomator2.utils import natualsize
+from uiautomator2.utils import natualsize, ROOT_PATH
 
 appdir = os.path.join(os.path.expanduser("~"), '.uiautomator2')
 
 GITHUB_BASEURL = "https://github.com/openatx"
 GITHUB_BASEURL_CUSTOM = "https://github.com/cc12703"
 
-SCRCPY_FILEPATH = "/data/local/tmp/scrcpy-serv-agent.jar"
+SCRCPY_FILEPATH = f"{ROOT_PATH}/scrcpy-serv-agent.jar"
 
 
 class DownloadBar(progress.bar.PixelBar):
@@ -194,7 +194,7 @@ class Initer():
         self.abis = (d.getprop('ro.product.cpu.abilist').strip()
                      or self.abi).split(",")
         
-        self.__atx_listen_addr = "127.0.0.1:7912"
+        self.__atx_listen_addr = "127.0.0.1:8310"
         self.logger = setup_logger(level=loglevel)
         # self.logger.debug("Initial device %s", device)
         self.logger.info("uiautomator2 version: %s", __version__)
@@ -205,7 +205,7 @@ class Initer():
 
     @property
     def atx_agent_path(self):
-        return "/data/local/tmp/atx-agent"
+        return f"{ROOT_PATH}/atx-agent"
 
     def shell(self, *args, timeout=60):
         self.logger.debug("Shell: %s", args)
@@ -295,7 +295,7 @@ class Initer():
                         os.path.dirname(path))  # zlib.error may raise
 
         if not dest:
-            dest = "/data/local/tmp/" + os.path.basename(path)
+            dest = ROOT_PATH + "/" + os.path.basename(path)
 
         self.logger.debug("Push to %s:0%o", dest, mode)
         self._device.sync.push(path, dest, mode=mode)
@@ -432,7 +432,7 @@ class Initer():
     def _install_jars(self):
         """ use uiautomator 1.0 to run uiautomator test """
         for (name, url) in self.jar_urls:
-            self.push_url(url, "/data/local/tmp/" + name, mode=0o644)
+            self.push_url(url, f"{ROOT_PATH}/{name}", mode=0o644)
 
     def _install_atx_agent(self):
         self.logger.info("Install atx-agent %s", __atx_agent_version__)
@@ -445,7 +445,7 @@ class Initer():
             self.logger.info("Install atx-agent %s", __atx_agent_version__)
             self.push_url(self.atx_agent_url, tgz=True, extract_name="atx-agent")
 
-        cmd = [self.atx_agent_path, 'server', '-d', "--addr", self.__atx_listen_addr]
+        cmd = [self.atx_agent_path, 'server', '--quiet', '-d', "--addr", self.__atx_listen_addr]
         if noUIA:
             cmd.append('--nouia')
         
@@ -473,8 +473,8 @@ class Initer():
         delay=.5,
         tries=10)
     def check_atx_agent_version(self):
-        port = self._device.forward_port(7912)
-        self.logger.debug("Forward: local:tcp:%d -> remote:tcp:%d", port, 7912)
+        port = self._device.forward_port(8310)
+        self.logger.debug("Forward: local:tcp:%d -> remote:tcp:%d", port, 8310)
         version = requests.get("http://%s:%d/version" %
                                (self._device._client.host, port)).text.strip()
         self.logger.debug("atx-agent version %s", version)
@@ -483,9 +483,16 @@ class Initer():
                                (self._device._client.host, port)).text.strip()
         self.logger.debug("device wlan ip: %s", wlan_ip)
         return version
+    
+
+    def create_root_path(self):
+        self.shell("mkdir", "-p", ROOT_PATH)
+        self.shell("chmod", "700", ROOT_PATH)
+
 
     def install(self):
 
+        self.create_root_path()
 
         self.setup_scrcpy()        
         
@@ -494,7 +501,7 @@ class Initer():
         """
         self.logger.info("Install minicap, minitouch")
         if int(self.sdk) > 28 :
-           self.shell('rm', '-rf', '/data/local/tmp/minitouch') 
+           self.shell('rm', '-rf', f"{ROOT_PATH}/minitouch") 
         else :
             self.push_url(self.minitouch_url)
 
@@ -532,15 +539,35 @@ class Initer():
         self._device.shell([self.atx_agent_path, "server", "--stop"])
         self._device.shell(["rm", self.atx_agent_path])
         self.logger.info("atx-agent stopped and removed")
-        self._device.shell(["rm", "/data/local/tmp/minicap"])
-        self._device.shell(["rm", "/data/local/tmp/minicap.so"])
-        self._device.shell(["rm", "/data/local/tmp/minitouch"])
+        self._device.shell(["rm", f"{ROOT_PATH}/minicap"])
+        self._device.shell(["rm", f"{ROOT_PATH}/minicap.so"])
+        self._device.shell(["rm", f"{ROOT_PATH}/minitouch"])
         self.logger.info("minicap, minitouch removed")
         self._device.shell(["rm", SCRCPY_FILEPATH])
         self._device.shell(["pm", "uninstall", "com.github.uiautomator"])
         self._device.shell(["pm", "uninstall", "com.github.uiautomator.test"])
         self._device.shell(["pm", "uninstall", "com.buscode.whatsinput"])
         self.logger.info("com.github.uiautomator uninstalled, all done !!!")
+
+
+    def removeOldFiles(self):
+        old_root = "/data/local/tmp"
+        self._device.shell([f"{old_root}/atx-agent", "server", "--stop"])
+        self._device.shell(["rm", "-rf", f"{old_root}/atx-agent"])
+        self._device.shell(["rm", "-rf", f"{old_root}/minicap"])
+        self._device.shell(["rm", "-rf", f"{old_root}/minicap-images"])
+        self._device.shell(["rm", "-rf", f"{old_root}/minicap.so"])
+        self._device.shell(["rm", "-rf", f"{old_root}/minitouch"])
+        self._device.shell(["rm", "-rf", f"{old_root}/scrcpy-serv-agent.jar"])
+
+        self._device.shell(["rm", "-rf", f"{old_root}/WhatsInput_v1.0.apk"])
+        self._device.shell(["rm", "-rf", f"{old_root}/app-uiautomator-test.apk"])
+        self._device.shell(["rm", "-rf", f"{old_root}/app-uiautomator.apk"])
+
+        self._device.shell(["rm", "-rf", "/sdcard/atx-agent.daemon.log"])
+        self._device.shell(["rm", "-rf", "/sdcard/atx-agent.log"])
+
+        self.logger.info("Old files removed")
 
     def cache(self):
         self.cache_url(self.atx_agent_url)

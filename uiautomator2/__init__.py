@@ -62,7 +62,7 @@ from .init import Initer
 # from .session import Session  # noqa: F401
 from .settings import Settings
 from .swipe import SwipeExt
-from .utils import list2cmdline, process_safe_wrapper, thread_safe_wrapper
+from .utils import list2cmdline, ROOT_PATH
 from .version import __apk_version__, __atx_agent_version__
 from .watcher import WatchContext, WatchNative, Watcher
 
@@ -274,7 +274,7 @@ class _BaseClient(object):
         Example:
             serial_or_url support param like
             - 08a3d291
-            - http://10.0.0.1:7912
+            - http://10.0.0.1:8310
         """
         if not serial_or_url:
             # should only one usb device connected
@@ -320,7 +320,7 @@ class _BaseClient(object):
 
         try:
             lport = self._adb_device.forward_port(
-                7912)  # this method is so fast, only take 0.2ms
+                8310)  # this method is so fast, only take 0.2ms
             return f"http://{self._adb_device._client.host}:{lport}"
         except adbutils.AdbError as e:
             if not _is_tmq_production() and self._atx_agent_url:
@@ -332,7 +332,7 @@ class _BaseClient(object):
             raise
 
     def _get_atx_agent_path(self) -> str:
-        return "/data/local/tmp/atx-agent"
+        return f"{ROOT_PATH}/atx-agent"
 
     def path2url(self, path: str) -> str:
         """ relative url path to full url path """
@@ -459,7 +459,7 @@ class _BaseClient(object):
             cwd_apk_path = cwd_assets_dir.joinpath(name).as_posix()
             if not os.path.exists(apk_path) and os.path.exists(cwd_apk_path):
                 apk_path = cwd_apk_path
-            target_path = "/data/local/tmp/" + name
+            target_path = f"{ROOT_PATH}/{name}"
             self.logger.debug("Install %s", name)
             self.push(apk_path, target_path)
             self.shell(['pm', 'install', '-r', '-t', target_path])
@@ -1499,7 +1499,7 @@ class _AppMixIn:
         Raises:
             RuntimeError
         """
-        target = "/data/local/tmp/_tmp.apk"
+        target = f"{ROOT_PATH}/_tmp.apk"
         self.push(data, target, show_progress=True)
         logger.debug("pm install -r -t %s", target)
         ret = self.shell(['pm', 'install', "-r", "-t", target],timeout=300)
@@ -2017,9 +2017,9 @@ def _fix_wifi_addr(addr: str) -> Optional[str]:
         return addr
 
     # make a request
-    # eg: 10.0.0.1, 10.0.0.1:7912
+    # eg: 10.0.0.1, 10.0.0.1:8310
     if ':' not in addr:
-        addr += ":7912"  # make default port 7912
+        addr += ":8310"  # make default port 8310
     try:
         r = requests.get("http://" + addr + "/version", timeout=2)
         r.raise_for_status()
@@ -2040,10 +2040,10 @@ def connect(addr=None) -> Device:
         ConnectError
 
     Example:
-        connect("10.0.0.1:7912")
-        connect("10.0.0.1") # use default 7912 port
+        connect("10.0.0.1:8310")
+        connect("10.0.0.1") # use default 8310 port
         connect("http://10.0.0.1")
-        connect("http://10.0.0.1:7912")
+        connect("http://10.0.0.1:8310")
         connect("cff1123ea")  # adb device serial number
     """
     if not addr or addr == '+':
@@ -2165,5 +2165,14 @@ def installByADBUSB(serial: str) :
     try :
         initer = Initer(adbutils.adb.device(serial))
         initer.install()
+    except Exception as e :
+        raise InstallError(e)
+    
+
+
+def removeOldFilesByADBUSB(serial: str) :
+    try :
+        initer = Initer(adbutils.adb.device(serial))
+        initer.removeOldFiles()
     except Exception as e :
         raise InstallError(e)

@@ -15,6 +15,7 @@ import (
 var adb *goadb.Adb
 
 const stfBinariesDir = "vendor/stf-binaries-master/node_modules"
+const rootPath = "/data/local/tmp/.u2p"
 
 func init() {
 	var err error
@@ -53,7 +54,7 @@ func initUiAutomator2(device *goadb.Device, serverAddr string) error {
 	}
 	log.Println("Install atx-agent")
 	atxAgentPath := "vendor/atx-agent"
-	if err := writeFileToDevice(device, atxAgentPath, "/data/local/tmp/atx-agent", 0755); err != nil {
+	if err := writeFileToDevice(device, atxAgentPath, rootPath+"/atx-agent", 0755); err != nil {
 		return errors.Wrap(err, "atx-agent")
 	}
 
@@ -61,7 +62,7 @@ func initUiAutomator2(device *goadb.Device, serverAddr string) error {
 	if serverAddr != "" {
 		args = append(args, "-t", serverAddr)
 	}
-	output, err := device.RunCommand("/data/local/tmp/atx-agent", args...)
+	output, err := device.RunCommand(rootPath+"/atx-agent", args...)
 	output = strings.TrimSpace(output)
 	if err != nil {
 		return errors.Wrap(err, "start atx-agent")
@@ -90,26 +91,26 @@ func writeFileToDevice(device *goadb.Device, src, dst string, mode os.FileMode) 
 
 func initMiniTouch(device *goadb.Device, abi string) error {
 	srcPath := fmt.Sprintf(stfBinariesDir+"/minitouch-prebuilt/prebuilt/%s/bin/minitouch", abi)
-	return writeFileToDevice(device, srcPath, "/data/local/tmp/minitouch", 0755)
+	return writeFileToDevice(device, srcPath, rootPath+"/minitouch", 0755)
 }
 
 func initSTFMiniTools(device *goadb.Device, abi, sdk string) error {
 	soSrcPath := fmt.Sprintf(stfBinariesDir+"/minicap-prebuilt/prebuilt/%s/lib/android-%s/minicap.so", abi, sdk)
-	err := writeFileToDevice(device, soSrcPath, "/data/local/tmp/minicap.so", 0644)
+	err := writeFileToDevice(device, soSrcPath, rootPath+"/minicap.so", 0644)
 	if err != nil {
 		return err
 	}
 	binSrcPath := fmt.Sprintf(stfBinariesDir+"/minicap-prebuilt/prebuilt/%s/bin/minicap", abi)
-	err = writeFileToDevice(device, binSrcPath, "/data/local/tmp/minicap", 0755)
+	err = writeFileToDevice(device, binSrcPath, rootPath+"/minicap", 0755)
 	if err != nil {
 		return err
 	}
 	touchSrcPath := fmt.Sprintf(stfBinariesDir+"/minitouch-prebuilt/prebuilt/%s/bin/minitouch", abi)
-	return writeFileToDevice(device, touchSrcPath, "/data/local/tmp/minitouch", 0755)
+	return writeFileToDevice(device, touchSrcPath, rootPath+"/minitouch", 0755)
 }
 
 func installAPK(device *goadb.Device, localPath string) error {
-	dstPath := "/data/local/tmp/" + filepath.Base(localPath)
+	dstPath := rootPath + "/" + filepath.Base(localPath)
 	if err := writeFileToDevice(device, localPath, dstPath, 0644); err != nil {
 		return err
 	}

@@ -169,8 +169,8 @@ def test_self_driver():
     d = adbutils.adb.device()
     package_name = "com.xueqiu.android"
     # package_name = "io.appium.android.apis"
-    d.forward("tcp:7912", "tcp:7912")
-    ret = requests.get(f"http://localhost:7912/proc/{package_name}/webview").json()
+    d.forward("tcp:8310", "tcp:8310")
+    ret = requests.get(f"http://localhost:8310/proc/{package_name}/webview").json()
     for data in ret:
         pprint(data)
         lport = d.forward_port("localabstract:"+data["socketPath"])
