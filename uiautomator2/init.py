@@ -464,7 +464,7 @@ class Initer():
     def update_atx_service(self) :
         for filename, url in app_uiautomator_apk_urls():
             path = self.push_url(url, mode=0o644)
-            self.shell("pm", "install", "-t", path)
+            self.shell("pm", "install", "-r", "-t", path)
             self.logger.info("- %s updated", filename)
 
 

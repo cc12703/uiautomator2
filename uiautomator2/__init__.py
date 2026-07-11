@@ -679,6 +679,15 @@ class _BaseClient(object):
             return True
         except (requests.ReadTimeout, EnvironmentError):
             return False
+        
+
+
+    def force_reset_uiautomator(self):
+        ok = self._force_reset_uiautomator_v2()  # uiautomator 2.0
+        if ok:
+            self.logger.info("uiautomator back to normal")
+            self._prepare_atx_agent_finish()
+
 
     def reset_uiautomator(self, reason="unknown", depth=0):
         """
