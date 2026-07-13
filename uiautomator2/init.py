@@ -418,14 +418,17 @@ class Initer():
 
         self.shell("pm", "uninstall", pkgName)         
 
-    def _install_uiautomator_apks(self):
+    def _install_uiautomator_apks(self, force=False):
         """ use uiautomator 2.0 to run uiautomator test
         通常在连接USB数据线的情况下调用
         """
       
         for filename, url in app_uiautomator_apk_urls():
             path = self.push_url(url, mode=0o644)
-            self._uninstall_uiautomator_apk(filename)
+            if force:
+                self._uninstall_uiautomator_apk(filename)
+                self.logger.info("- %s uninstalled", filename)
+
             self.shell("pm", "install", "-r", "-t", path)
             self.logger.info("- %s installed", filename)
 
@@ -459,13 +462,10 @@ class Initer():
         self.push_url(self.scrcpy_url, SCRCPY_FILEPATH)
 
     def setup_atx_service(self) :
-        self._install_uiautomator_apks()
+        self._install_uiautomator_apks(force=True)
 
     def update_atx_service(self) :
-        for filename, url in app_uiautomator_apk_urls():
-            path = self.push_url(url, mode=0o644)
-            self.shell("pm", "install", "-r", "-t", path)
-            self.logger.info("- %s updated", filename)
+        self._install_uiautomator_apks(force=False)
 
 
     @retry(
@@ -490,7 +490,7 @@ class Initer():
         self.shell("chmod", "700", ROOT_PATH)
 
 
-    def install(self):
+    def install(self, force=False):
 
         self.create_root_path()
 
@@ -520,7 +520,7 @@ class Initer():
             self.logger.info(
                 "Install com.github.uiautomator, com.github.uiautomator.test %s",
                 __apk_version__)
-            self._install_uiautomator_apks()
+            self._install_uiautomator_apks(force=force)
         else:
             self.logger.info("Already installed com.github.uiautomator apks")
 
