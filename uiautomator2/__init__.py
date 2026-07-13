@@ -2173,10 +2173,18 @@ def installByADBWifi(addr: str, agentAddr: Optional[str]) :
 def installByADBUSB(serial: str) :
     try :
         initer = Initer(adbutils.adb.device(serial))
-        initer.install()
+        initer.install(force=True)
     except Exception as e :
         raise InstallError(e)
     
+
+
+def updateByADBUSB(serial: str) :
+    try :
+        initer = Initer(adbutils.adb.device(serial))
+        initer.install(force=False)
+    except Exception as e :
+        raise InstallError(e)
 
 
 def removeOldFilesByADBUSB(serial: str) :
