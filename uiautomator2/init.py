@@ -187,12 +187,13 @@ class Initer():
     def __init__(self, device: adbutils.AdbDevice, loglevel=logging.DEBUG):
         d = self._device = device
 
-        self.sdk = d.getprop('ro.build.version.sdk')
-        self.abi = d.getprop('ro.product.cpu.abi')
-        self.pre = d.getprop('ro.build.version.preview_sdk')
-        self.arch = d.getprop('ro.arch')
-        self.abis = (d.getprop('ro.product.cpu.abilist').strip()
-                     or self.abi).split(",")
+        if d is not None:
+            self.sdk = d.getprop('ro.build.version.sdk')
+            self.abi = d.getprop('ro.product.cpu.abi')
+            self.pre = d.getprop('ro.build.version.preview_sdk')
+            self.arch = d.getprop('ro.arch')
+            self.abis = (d.getprop('ro.product.cpu.abilist').strip()
+                        or self.abi).split(",")
         
         self.__atx_listen_addr = "127.0.0.1:8310"
         self.logger = setup_logger(level=loglevel)
@@ -223,6 +224,15 @@ class Initer():
                 "/android-uiautomator-jsonrpcserver/releases/download/",
                 __jar_version__, "/", name
             ]))
+
+    @property
+    def atx_agent_urls(self) :
+        names = ['atx-agent_{v}_linux_armv7.tar.gz', 'atx-agent_{v}_linux_arm64.tar.gz']
+        urls = []
+        for name in names:
+            urls.append(GITHUB_BASEURL_CUSTOM + '/atx-agent/releases/download/v%s/%s' % (
+                __atx_agent_version__, name.format(v=__atx_agent_version__)))
+        return urls
 
     @property
     def atx_agent_url(self):
@@ -257,6 +267,17 @@ class Initer():
         yield base_url + self.abi + "/lib/android-" + sdk + "/minicap.so"
         yield base_url + self.abi + "/bin/minicap"
 
+
+    @property
+    def minicap_all_urls(self):
+        base_url = GITHUB_BASEURL + \
+            "/stf-binaries/raw/0.3.0/node_modules/@devicefarmer/minicap-prebuilt/prebuilt/"
+        for abi in ["armeabi-v7a", "arm64-v8a"]:
+            for sdk in [30]:
+                yield base_url + abi + "/lib/android-" + str(sdk) + "/minicap.so"
+                yield base_url + abi + "/bin/minicap"
+
+
     @property
     def minitouch_url(self):
         return ''.join([
@@ -264,6 +285,14 @@ class Initer():
             "/raw/0.3.0/node_modules/@devicefarmer/minitouch-prebuilt/prebuilt/",
             self.abi + "/bin/minitouch"
         ])
+    
+
+    @property
+    def minitouch_urls(self) :
+        prefix = GITHUB_BASEURL + "/stf-binaries/raw/0.3.0/node_modules/@devicefarmer/minitouch-prebuilt/prebuilt/"
+        for abi in ["armeabi-v7a", "arm64-v8a"]:
+            yield prefix + abi + "/bin/minitouch"
+
     
     @property
     def whatsinput_url(self) :
@@ -570,7 +599,9 @@ class Initer():
         self.logger.info("Old files removed")
 
     def cache(self):
-        self.cache_url(self.atx_agent_url)
+        for url in self.atx_agent_urls:
+            self.cache_url(url)
+
         for (name, url) in self.jar_urls:
             self.cache_url(url)
 
@@ -578,8 +609,11 @@ class Initer():
             self.cache_url(url)
 
         self.cache_url(self.whatsinput_url)
-        self.cache_url(self.minitouch_url)
-        for url in self.minicap_urls:
+
+        for url in self.minitouch_urls:
+            self.cache_url(url)
+
+        for url in self.minicap_all_urls:
             self.cache_url(url)
 
         self.cache_url(self.scrcpy_url)

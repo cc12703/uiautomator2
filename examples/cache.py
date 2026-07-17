@@ -15,8 +15,8 @@ import uiautomator2 as u2
 
 
 def main():
-    device = adbutils.adb.device(None)
-    init = Initer(device, loglevel=logging.DEBUG)
+    # device = adbutils.adb.device(None)
+    init = Initer(None, loglevel=logging.DEBUG)
     init.cache()
 
 

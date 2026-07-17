@@ -17,8 +17,11 @@ def chkIsRuning() :
     print(d.isRunning)
 
 
-
+def healthCheck() :
+    d = u2.connect()
+    print(d.healthcheck())
 
 
 if __name__ == '__main__':
-    chkIsRuning()
+    # chkIsRuning()
+    healthCheck()

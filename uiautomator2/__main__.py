@@ -39,8 +39,8 @@ def cmd_purge(args):
 
 def cmd_cache(args):
     """ cache minicap, minitouch, uiautomator ... """
-    device = adbutils.adb.device(args.serial)
-    init = Initer(device, loglevel=logging.DEBUG)
+    # device = adbutils.adb.device(args.serial)
+    init = Initer(None, loglevel=logging.DEBUG)
     init.cache()
 
 
