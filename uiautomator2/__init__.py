@@ -949,7 +949,8 @@ class _BaseClient(object):
         if r.status_code != 200:
             raise FileNotFoundError("pull", src, r.text)
         with open(dst, 'wb') as f:
-            shutil.copyfileobj(r.raw, f)
+            for chunk in r.iter_content(chunk_size=8192):
+                f.write(chunk)
             if _mswindows:  # hotfix windows file size zero bug
                 f.close()
 
